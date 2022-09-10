@@ -1,4 +1,4 @@
-node{
+try{node{
     
 def mavenHome = tool name: "maven3.8.6"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
@@ -24,6 +24,18 @@ sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@17
 }
 }
 }
+
+
+}
+catch(e){
+slackNotifications(currentBuild.result)
+throw e
+}
+
+finally{
+slackNotifications(currentBuild.result)
+}
+
 //code snippet sending slack notification
 def slacknotification(String buildStatus = 'STARTED') {
   // build status of null means successful
@@ -50,4 +62,3 @@ def slacknotification(String buildStatus = 'STARTED') {
   // Send notifications
   slackSend (color: colorCode, message: summary)
 }
-
